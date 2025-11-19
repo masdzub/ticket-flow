@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="flex items-center justify-center p-4 h-screen text-gray-100">
+
+    <!-- Background Orbs for extra flair -->
+    <div
+        class="fixed top-[-10%] left-[-10%] w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-blob">
+    </div>
+    <div
+        class="fixed bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-blob animation-delay-2000">
+    </div>
+
+    <div class="card w-full max-w-2xl glass-panel shadow-2xl max-h-[90vh] flex flex-col z-10 relative overflow-hidden">
+        <!-- Decorative top border gradient -->
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+
+        <div class="card-body flex-none pb-2">
+            <h1 class="text-4xl font-bold text-center mb-2 tracking-tight">
+                <span
+                    class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 drop-shadow-sm">
+                    TicketFlow
+                </span>
+            </h1>
+            <p class="text-center text-gray-400 text-sm mb-6 font-light tracking-wide">Generate clean, formatted ticket
+                lists instantly.</p>
+
+            <div class="form-control w-full group relative">
+                <div class="relative">
+                    <input type="url" id="urlInput" placeholder="Paste URL and press Enter..."
+                        class="input w-full glass-input text-white placeholder-gray-500 focus:outline-none h-12 pl-12 font-mono text-sm rounded-xl" />
+                    <div
+                        class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 group-focus-within:text-blue-400 transition-colors duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                        </svg>
+                    </div>
+                    <div class="absolute right-3 top-1/2 transform -translate-y-1/2">
+                        <kbd class="kbd kbd-sm bg-white/10 border-white/10 text-gray-400 font-sans">Enter</kbd>
+                    </div>
+                </div>
+                <!-- Error Toast -->
+                <div id="errorToast" class="absolute top-full left-0 w-full mt-3 text-center hidden z-50">
+                    <div
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500/80 to-pink-600/80 backdrop-blur-md border border-white/20 text-white text-sm font-medium rounded-xl shadow-lg shadow-red-500/20 transform transition-all duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <span id="errorText">Error!</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="resultArea"
+            class="hidden flex-1 overflow-hidden flex flex-col relative transition-all duration-500 ease-in-out">
+            <!-- Toolbar -->
+            <div
+                class="px-6 py-2 flex justify-between items-center border-b border-white/5 bg-black/10 backdrop-blur-sm">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                    <span class="text-xs font-medium text-gray-400 uppercase tracking-wider">Live Preview</span>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="clearAll()"
+                        class="btn btn-xs btn-ghost gap-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all rounded-lg"
+                        title="Clear All">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Clear
+                    </button>
+                    <button onclick="copyToClipboard()"
+                        class="btn btn-xs btn-ghost gap-2 text-gray-400 hover:text-white hover:bg-white/10 transition-all rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                        Copy All
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div id="outputContent" class="flex-1 overflow-y-auto p-6 pt-4 space-y-4">
+                <div class="sticky top-0 z-20 pb-2 -mt-2 pt-2 bg-[#131c31]/0 backdrop-blur-md">
+                    <div
+                        class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-sm font-mono font-semibold">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span id="dateDisplay"></span>
+                    </div>
+                </div>
+
+                <ul id="linksList" class="space-y-2">
+                    <!-- Links will be injected here -->
+                </ul>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="flex-1 flex flex-col items-center justify-center text-gray-500 p-10 opacity-60">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-4 text-gray-600" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+            </svg>
+            <p class="text-sm font-light">No links added yet</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
